@@ -88,7 +88,7 @@ def cnn_model():
 
 
 def prepareData():
-    root_dir = 'C:/Users/Baptiste Pouthier/Documents/partage/Dataset/train';
+    root_dir = '/home/bpouthie/test_archi/plancton/Dataset/train';
     # root_dir = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/uvp5ccelter_group1/uvp5ccelter_group1/';
     imgs = []
     labels = []
@@ -129,8 +129,8 @@ def lr_schedule(epoch):
 #imagesKaggles = 'D:/SaveWeights/Kaggle.npy'
 #imagesKagglesLabels = 'D:/SaveWeights/Kaggle_labels.npy'
 
-imagesKaggles = 'C:/Users/Baptiste Pouthier/Documents/partage/Kaggle.npy'
-imagesKagglesLabels = 'C:/Users/Baptiste Pouthier/Documents/partage/Kaggle_labels.npy'
+imagesKaggles = '/home/bpouthie/test_archi/plancton/Kaggle'
+imagesKagglesLabels = '/home/bpouthie/test_archi/plancton/Kaggle_labels.npy'
 
 # imagesUPV = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5Image95_95.npy'
 # imagesUPVLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5ImageLabels95_95.npy'
@@ -218,7 +218,7 @@ sgd = SGD(lr=lr, momentum=0.9, nesterov=True)
 
 #'D:/SaveWeights/save'
 checkpoint = ModelCheckpoint(
-    'C:/Users/Baptiste Pouthier/Documents/partage/save',
+    '/home/bpouthie/test_archi/plancton/save',
     monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 callbacks_list = [checkpoint]
 model.compile(loss='categorical_crossentropy',
