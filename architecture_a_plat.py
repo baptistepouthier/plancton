@@ -40,7 +40,7 @@ def preprocess_img(img):
 
 
 def get_class(img_path):
-    return img_path.split('\\')[-2]
+    return img_path.split('/')[-2]
 
 
 def cnn_model():
