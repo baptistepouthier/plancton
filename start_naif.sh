@@ -28,4 +28,4 @@ pip3 install keras h5py pillow
 
 
 cd ~/test_archi/plancton/
-python3 layer_launcher.py
+python3 architecture_a_plat.py
