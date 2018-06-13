@@ -4,6 +4,7 @@ Created on Sun Dec 10 18:17:24 2017
 @author: Cédric
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 from skimage import color, exposure, transform
 from skimage import io
@@ -224,7 +225,7 @@ callbacks_list = [checkpoint]
 model.compile(loss='categorical_crossentropy',
               optimizer=sgd,
               metrics=['accuracy'])
-model.fit_generator(train_datagen.flow(X_train, Y_train, batch_size=batch_size),
+h1 = model.fit_generator(train_datagen.flow(X_train, Y_train, batch_size=batch_size),
                     steps_per_epoch=X_train.shape[0] // batch_size,
                     epochs=100,
                     validation_data=(X_val, Y_val),
@@ -243,4 +244,23 @@ trueClasses = Y_test.argmax(axis=-1)
 acc = np.sum(predClasses == trueClasses) / np.size(predClasses)
 print("Test accuracy = {}".format(acc))
 
+# summarize history for accuracy
+plt.plot(h1.history['acc'])
+plt.plot(h1.history['val_acc'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'])
+plt.savefig('acc.png')
+plt.show()
+# summarize history for loss
+plt.plot(h1.history['loss'])
+
+plt.plot(h1.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'])
+plt.savefig('loss.png')
+plt.show()
 # model.summary();0
