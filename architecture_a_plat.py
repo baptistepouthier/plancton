@@ -130,7 +130,7 @@ def lr_schedule(epoch):
 #imagesKagglesLabels = 'D:/SaveWeights/Kaggle_labels.npy'
 
 imagesKaggles = '/home/bpouthie/test_archi/plancton/Kaggle'
-imagesKagglesLabels = '/home/bpouthie/test_archi/plancton/Kaggle_labels.npy'
+imagesKagglesLabels = '/home/bpouthie/test_archi/plancton/Kaggle_labels'
 
 # imagesUPV = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5Image95_95.npy'
 # imagesUPVLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5ImageLabels95_95.npy'
