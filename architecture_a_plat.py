@@ -22,7 +22,7 @@ from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from pathlib import Path
 import glob
 
-NUM_CLASSES = 121  # 38
+NUM_CLASSES = 41  # 38
 IMG_SIZE = 95
 batch_size = 64
 
@@ -89,7 +89,7 @@ def cnn_model():
 
 
 def prepareData():
-    root_dir = '/home/bpouthie/test_archi/plancton/Dataset/train';
+    root_dir = '/home/bpouthie/test_archi/plancton2/Dataset/train';
     # root_dir = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/uvp5ccelter_group1/uvp5ccelter_group1/';
     imgs = []
     labels = []
@@ -130,8 +130,8 @@ def lr_schedule(epoch):
 #imagesKaggles = 'D:/SaveWeights/Kaggle.npy'
 #imagesKagglesLabels = 'D:/SaveWeights/Kaggle_labels.npy'
 
-imagesKaggles = '/home/bpouthie/test_archi/plancton/Kaggle'
-imagesKagglesLabels = '/home/bpouthie/test_archi/plancton/Kaggle_labels'
+imagesKaggles = '/home/bpouthie/test_archi/plancton2/Kaggle'
+imagesKagglesLabels = '/home/bpouthie/test_archi/plancton2/Kaggle_labels'
 
 # imagesUPV = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5Image95_95.npy'
 # imagesUPVLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5ImageLabels95_95.npy'
@@ -219,7 +219,7 @@ sgd = SGD(lr=lr, momentum=0.9, nesterov=True)
 
 #'D:/SaveWeights/save'
 checkpoint = ModelCheckpoint(
-    '/home/bpouthie/test_archi/plancton/save',
+    '/home/bpouthie/test_archi/plancton2/save',
     monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 callbacks_list = [checkpoint]
 model.compile(loss='categorical_crossentropy',
@@ -227,7 +227,7 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 h1 = model.fit_generator(train_datagen.flow(X_train, Y_train, batch_size=batch_size),
                     steps_per_epoch=X_train.shape[0] // batch_size,
-                    epochs=100,
+                    epochs=1,
                     validation_data=(X_val, Y_val),
                     callbacks=callbacks_list)  # validation_split pour split auto
 
