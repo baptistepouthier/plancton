@@ -252,7 +252,7 @@ plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'])
 plt.savefig('/home/bpouthie/test_archi/plancton2/acc.png')
-plt.show()
+#plt.show()
 # summarize history for loss
 plt.plot(h1.history['loss'])
 
@@ -262,5 +262,5 @@ plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'])
 plt.savefig('/home/bpouthie/test_archi/plancton2/loss.png')
-plt.show()
+#plt.show()
 # model.summary();0
