@@ -13,4 +13,6 @@ pip3 install keras h5py pillow
 
 #pip3 install $TF_BINARY_URL
 
-python3 test.py
+python3
+cd ~/test_archi/plancton/
+test.py
