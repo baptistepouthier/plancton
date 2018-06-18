@@ -16,5 +16,4 @@ pip3 install keras h5py pillow
 
 
 cd ~/test_archi/plancton/
-python3
-test.py
+python3 test.py
