@@ -36,8 +36,8 @@ for line in range(0,30336):
 
     conf[label][Y_classes] += 1 #coeff C[i,j] incremente le nombre d'image en classe j sachant qu'elle appartient reelement en classe i
 
-for line in range (0,122): #normalization : diviser chaque élément d'une ligne par la somme des élments de cette même ligne : pourcentage d'elements i classifiés comme étant de la classe j
-    for col in range (0,122):
+for line in range (0,121): #normalization : diviser chaque élément d'une ligne par la somme des élments de cette même ligne : pourcentage d'elements i classifiés comme étant de la classe j
+    for col in range (0,121):
         conf[line][col]=conf[line][col]/np.sum(conf[line])
 
 
