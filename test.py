@@ -1,6 +1,8 @@
 from keras.models import load_model
 import numpy as np
 import matplotlib.pyplot as plt
+import networkx as nx
+
 
 model = load_model('/home/bpouthie/test_archi/plancton/save')
 
@@ -9,42 +11,42 @@ X = np.load('/home/bpouthie/test_archi/plancton/Kaggle.npy')
 LABELS = np.load('/home/bpouthie/test_archi/plancton/Kaggle_labels.npy')
 
 print("processing...")
-#Y_prob = model.predict(X[123][np.newaxis,:])
-#Y_prob=model.predict(X)
-#Y_classes = Y_prob.argmax(axis=1) #label de l'image
-
-#print("represent probabilities at each categories for each row (one row = one image) :")
-#print(Y_prob)
-
-#print("shape of the matrix :")
-#print(Y_prob.size)
-
-#print("label : ")
-#print(Y_classes)
 
 
-#print(LABELS[123][np.newaxis,:])
+conf=np.zeros((121,121)) #confusion matrix
 
-conf=np.zeros((121,121))
+g=nx.Graph() #graph creation
+
+max_conf = 0.5 #threshold
 
 
-for line in range(0,30336):
+for row in range(0,30336):
 
-    Y_prob = model.predict(X[line][np.newaxis, :]) #proba d'appartenance de l'image
-    Y_classes = Y_prob.argmax(axis=1)  #label PREDIT de l'image via sa proba
-    label=np.where(LABELS[line][np.newaxis,:] == 1)[1][0] #label THEORIQUE de l'image
+    Y_prob = model.predict(X[row][np.newaxis, :]) #belonging probability of images
+    Y_classes = Y_prob.argmax(axis=1)  #label predicts the image based on its probability
+    label=np.where(LABELS[row][np.newaxis,:] == 1)[1][0] #theoretical label
 
-    conf[label][Y_classes] += 1 #coeff C[i,j] incremente le nombre d'image en classe j sachant qu'elle appartient reelement en classe i
+    conf[label][Y_classes] += 1 #coeff C[i,j] increment the image number in class j knowing that it really belongs in class i
 
-for line in range (0,121): #normalization : diviser chaque élément d'une ligne par la somme des élments de cette même ligne : pourcentage d'elements i classifiés comme étant de la classe j
+for row in range (0,121): #normalization : percentage of items i classified as class j
     for col in range (0,121):
-        conf[line][col]=conf[line][col]/np.sum(conf[line])
+        conf[row][col]=conf[row][col]/np.sum(conf[row])
+        above_max = np.where(conf[row][col]> max_conf)
+
+for row, col in zip(above_max[0],above_max[1]):
+    if row != col:
+        g.add_edge(row,col)
+
+
+nx.draw_networkx(g)
+
+plt.savefig('/home/bpouthie/test_archi/plancton/graph.png')
 
 
 
 plt.matshow(conf)
 
-plt.show()
+plt.savefig('/home/bpouthie/test_archi/plancton/matrix.png')
 
 
 # a=np.array([[1.0, 2.0], [3.0, 4.0]])
