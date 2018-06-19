@@ -33,7 +33,7 @@ for row in range (0,121): #normalization : percentage of items i classified as c
         conf[row][col]=conf[row][col]/np.sum(conf[row])
 
 
-above_max = np.where(conf[row][col]> max_conf)
+above_max = np.where(conf > max_conf)
 for row, col in zip(above_max[0],above_max[1]):
     if row != col:
         g.add_edge(row,col)
