@@ -2,11 +2,11 @@ from keras.models import load_model
 from keras.applications.vgg16 import decode_predictions
 import numpy as np
 
-model = load_model("C:/Users/Baptiste Pouthier/Documents/partage/Architecture/save")
+model = load_model('/home/bpouthie/test_archi/plancton/save')
 
-X = np.load("C:/Users/Baptiste Pouthier/Documents/partage/Architecture/Kaggle.npy")
+X = np.load('/home/bpouthie/test_archi/plancton/Kaggle.npy')
 
-LABELS = np.load("C:/Users/Baptiste Pouthier/Documents/partage/Architecture/Kaggle_labels.npy")
+LABELS = np.load('/home/bpouthie/test_archi/plancton/Kaggle_labels.npy')
 
 print("processing...")
 #Y_prob = model.predict(X[123][np.newaxis,:])
