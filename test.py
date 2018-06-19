@@ -31,8 +31,9 @@ for row in range(0,30336):
 for row in range (0,121): #normalization : percentage of items i classified as class j
     for col in range (0,121):
         conf[row][col]=conf[row][col]/np.sum(conf[row])
-        above_max = np.where(conf[row][col]> max_conf)
 
+
+above_max = np.where(conf[row][col]> max_conf)
 for row, col in zip(above_max[0],above_max[1]):
     if row != col:
         g.add_edge(row,col)
@@ -49,11 +50,13 @@ plt.matshow(conf)
 plt.savefig('/home/bpouthie/test_archi/plancton/matrix.png')
 
 
-# a=np.array([[1.0, 2.0], [3.0, 4.0]])
+# a=np.array([[13.0, 2.0], [30.0, 7.0]])
 # print(a)
 #
-# for line in range (0,2): #normalization
-#      for col in range (0,2):
-#         a[line][col]=(a[line][col])/np.sum(a[line])
+# for row in range (0,2):
+#     for col in range (0,2):
+#         a[row][col]=a[row][col]/np.sum(a[row])
+#         above_max = np.where(a[row][col]> max_conf)
+#
 #
 # print(a)
