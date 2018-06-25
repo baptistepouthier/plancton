@@ -30,4 +30,4 @@ pip3 install keras h5py pillow
 
 
 cd /home/bpouthie/Documents/partage
-python3 test.py
+python3 architecture_a_plat.py
