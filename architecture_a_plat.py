@@ -50,7 +50,7 @@ class architecture_a_plat:
 
 
     def get_class(self, img_path):
-        return img_path.split('\\')[-2]
+        return img_path.split('/')[-2]
 
 
     def cnn_model(self):
@@ -281,5 +281,18 @@ PATH_TEST_IMAGES = '/home/bpouthie/Documents/partage/test_images/iteration_0/tes
 PATH_TEST_LABELS = '/home/bpouthie/Documents/partage/test_labels/iteration_0/test_labels_cluster_0/test_labels'
 
 PATH_LABEL_DICT = '/home/bpouthie/Documents/partage/label_dict/iteration_0/label_dict_cluster_0/label_dict'
+
+
+# NUM_CLASSES = 121
+# PATH_IMAGES = 'D:/Users/Baptiste Pouthier/Documents/partage/clusters/iteration_0/cluster_n0_s121'
+# PATH_LABELS = 'D:/Users/Baptiste Pouthier/Documents/partage/clusters_labels/iteration_0/labels_cluster_0/label'
+# PATH_SAVE_MODEL = 'D:/Users/Baptiste Pouthier/Documents/partage/clusters_saves/iteration_0/save_cluster_0/save'
+# PATH_PREPARED_IMAGES = 'D:/Users/Baptiste Pouthier/Documents/partage/clusters_prepared_images/iteration_0/prepared_images_cluster_0/prepared_images'
+#
+# PATH_TEST_IMAGES = 'D:/Users/Baptiste Pouthier/Documents/partage/test_images/iteration_0/test_images_cluster_0/test_images'
+# PATH_TEST_LABELS = 'D:/Users/Baptiste Pouthier/Documents/partage/test_labels/iteration_0/test_labels_cluster_0/test_labels'
+#
+# PATH_LABEL_DICT = 'D:/Users/Baptiste Pouthier/Documents/partage/label_dict/iteration_0/label_dict_cluster_0/label_dict'
+
 
 architecture_a_plat(NUM_CLASSES, PATH_IMAGES, PATH_LABELS, PATH_SAVE_MODEL, PATH_PREPARED_IMAGES,PATH_TEST_IMAGES,PATH_TEST_LABELS,PATH_LABEL_DICT)
