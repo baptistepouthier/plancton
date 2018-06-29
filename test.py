@@ -1,9 +1,9 @@
 from keras.models import load_model
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import networkx as nx
 import os
-import pyprind
+#import pyprind
 import distutils.dir_util
 from confusion import architecture_a_plat as cnn
 
@@ -55,7 +55,8 @@ def confusion_matrix(number_classes,number_images,model,images,LABELS):
     conf = np.zeros((number_classes, number_classes))  # confusion matrix creation
     print("\n","predictions by the model:")
 
-    for row in pyprind.prog_percent(range(0,number_images)):
+    #for row in pyprind.prog_percent(range(0,number_images)):
+    for row in range(0, number_images):
 
         Y_prob = model.predict(images[row][np.newaxis, :]) #belonging probability of images
 
