@@ -387,7 +387,7 @@ def from_graph_to_clusters(g,label_dict,nb_iter): #ajouter nb_iter
     list_nodes_graph = []
     if clusters:
 
-        path_iteration_dir = '%s/clusters/iteration_%s' % (COMMON_PATH,nb_iter)
+        path_iteration_dir = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)
 
         if not os.path.isdir(path_iteration_dir):
             os.mkdir(path_iteration_dir)
@@ -400,28 +400,27 @@ def from_graph_to_clusters(g,label_dict,nb_iter): #ajouter nb_iter
             cluster_ID += 1
             ID.append(ID_static())
 
-            path_cluster = '%s/clusters/iteration_%s/cluster_n%s' % (COMMON_PATH,nb_iter, ID[cluster_ID])
+            path_cluster = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)+'/cluster_n'+str(ID[cluster_ID])
             list_size_clusters.append(cluster_size)
             os.mkdir(path_cluster)
 
-            cluster_created = 'cluster_n%s_s%s' % (ID[cluster_ID], cluster_size)
+            cluster_created = 'cluster_n'+str(ID[cluster_ID])+'_s'+str(cluster_size)
 
             list_nodes_graph.append(cluster_created)
 
             print("fill cluster", cluster_ID, "...")
 
             for class_name in cluster:
-                dst = '%s/clusters/iteration_%s/cluster_n%s/%s' % (COMMON_PATH,nb_iter, ID[cluster_ID], class_name)
+                dst = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)+'/cluster_n'+str(ID[cluster_ID])+'/'+class_name
                 os.mkdir(dst)
-                #os.mkdir('D:/Users/Baptiste Pouthier/Documents/partage/clusters/iteration_%s/cluster_n%s_s%s/%s' % (nb_iter,cluster_ID,cluster_size,class_name))
 
-                src = '%s/clusters/iteration_0/cluster_n0/%s' % (COMMON_PATH,class_name)
+                src = COMMON_PATH+'/clusters/iteration_0/cluster_n0/'+class_name
 
-                #dst = 'D:/Users/Baptiste Pouthier/Documents/partage/clusters/iteration_%s/cluster_n%s_s%s/%s' % (nb_iter,cluster_ID,cluster_size,class_name)
                 distutils.dir_util.copy_tree(src, dst, preserve_mode=1)
 
         print("Success")
     return(cluster_ID,list_size_clusters,clusters,ID,list_nodes_graph)
+
 
 def cluster_training(cluster_ID,list_size_clusters,nb_iter,clusters,ID):
     if clusters:
@@ -433,57 +432,56 @@ def cluster_training(cluster_ID,list_size_clusters,nb_iter,clusters,ID):
             NUM_CLASSES = list_size_clusters[cluster]
 
             # PATH_IMAGES
-            PATH_IMAGES = '%s/clusters/iteration_%s/cluster_n%s' % (COMMON_PATH, nb_iter, ID[cluster])
-            #PATH_IMAGES = 'D:/Users/Baptiste Pouthier/Documents/partage/clusters/iteration_%s/cluster_n%s_s%s' % (nb_iter, cluster, list_size_clusters[cluster])
+            PATH_IMAGES = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)+'/cluster_n'+str(ID[cluster])
             print(PATH_IMAGES)
 
             # PATH_LABEL
-            PATH_LABEL_ITER_DIR = '%s/clusters_labels/iteration_%s' % (COMMON_PATH, nb_iter)
+            PATH_LABEL_ITER_DIR = COMMON_PATH+'/clusters_labels/iteration_'+str(nb_iter)
             if not os.path.isdir(PATH_LABEL_ITER_DIR):
                 os.mkdir(PATH_LABEL_ITER_DIR)
-            PATH_LABEL_DIR = '%s/clusters_labels/iteration_%s/labels_cluster_%s' % (COMMON_PATH, iteration, ID[cluster])
+            PATH_LABEL_DIR = COMMON_PATH+'/clusters_labels/iteration_'+str(nb_iter)+'/labels_cluster_'+str(ID[cluster])
             os.mkdir(PATH_LABEL_DIR)
-            PATH_LABELS = '%s/label' % (PATH_LABEL_DIR)
+            PATH_LABELS = PATH_LABEL_DIR+'/label'
 
             # PATH_SAVE_MODEL
-            PATH_SAVE_ITER_DIR = '%s/clusters_saves/iteration_%s' % (COMMON_PATH, nb_iter)
+            PATH_SAVE_ITER_DIR = COMMON_PATH+'/clusters_saves/iteration_'+str(nb_iter)
             if not os.path.isdir(PATH_SAVE_ITER_DIR):
                 os.mkdir(PATH_SAVE_ITER_DIR)
-            PATH_SAVE_MODEL_DIR = '%s/clusters_saves/iteration_%s/save_cluster_%s' % (COMMON_PATH,iteration, ID[cluster])
+            PATH_SAVE_MODEL_DIR = COMMON_PATH+'/clusters_saves/iteration_'+str(nb_iter)+'/save_cluster_'+str(ID[cluster])
             os.mkdir(PATH_SAVE_MODEL_DIR)
-            PATH_SAVE_MODEL = '%s/save' % (PATH_SAVE_MODEL_DIR)
+            PATH_SAVE_MODEL = PATH_SAVE_MODEL_DIR+'/save'
 
             # PREPARED_IMAGES_PATH
-            PATH_PREPARED_IMAGES_ITER_DIR = '%s/clusters_prepared_images/iteration_%s' % (COMMON_PATH,nb_iter)
+            PATH_PREPARED_IMAGES_ITER_DIR = COMMON_PATH+'/clusters_prepared_images/iteration_'+str(nb_iter)
             if not os.path.isdir(PATH_PREPARED_IMAGES_ITER_DIR):
                 os.mkdir(PATH_PREPARED_IMAGES_ITER_DIR)
-            PATH_PREPARED_IMAGES_DIR = '%s/clusters_prepared_images/iteration_%s/prepared_images_cluster_%s' % (COMMON_PATH,iteration, ID[cluster])
+            PATH_PREPARED_IMAGES_DIR = COMMON_PATH+'/clusters_prepared_images/iteration_'+str(nb_iter)+'/prepared_images_cluster_'+str(ID[cluster])
             os.mkdir(PATH_PREPARED_IMAGES_DIR)
-            PATH_PREPARED_IMAGES = '%s/prepared_images' % (PATH_PREPARED_IMAGES_DIR)
+            PATH_PREPARED_IMAGES = PATH_PREPARED_IMAGES_DIR+'/prepared_images'
 
             # PATH TEST IMAGES
-            PATH_TEST_IMAGES_ITER_DIR = '%s/test_images/iteration_%s' % (COMMON_PATH, nb_iter)
+            PATH_TEST_IMAGES_ITER_DIR = COMMON_PATH+'/test_images/iteration_'+str(nb_iter)
             if not os.path.isdir(PATH_TEST_IMAGES_ITER_DIR):
                 os.mkdir(PATH_TEST_IMAGES_ITER_DIR)
-            PATH_TEST_IMAGES_DIR = '%s/test_images/iteration_%s/test_images_cluster_%s' % (COMMON_PATH, iteration, ID[cluster])
+            PATH_TEST_IMAGES_DIR = COMMON_PATH+'/test_images/iteration_'+str(nb_iter)+'/test_images_cluster_'+str(ID[cluster])
             os.mkdir( PATH_TEST_IMAGES_DIR)
-            PATH_TEST_IMAGES = '%s/test_images' % (PATH_TEST_IMAGES_DIR)
+            PATH_TEST_IMAGES = PATH_TEST_IMAGES_DIR+'/test_images'
 
             # PATH TEST LABELS
-            PATH_TEST_LABELS_ITER_DIR = '%s/test_labels/iteration_%s' % (COMMON_PATH, nb_iter)
+            PATH_TEST_LABELS_ITER_DIR = COMMON_PATH+'/test_labels/iteration_'+str(nb_iter)
             if not os.path.isdir(PATH_TEST_LABELS_ITER_DIR):
                 os.mkdir(PATH_TEST_LABELS_ITER_DIR)
-            PATH_TEST_LABELS_DIR = '%s/test_labels/iteration_%s/test_labels_cluster_%s' % (COMMON_PATH, iteration, ID[cluster])
+            PATH_TEST_LABELS_DIR = COMMON_PATH+'/test_labels/iteration_'+str(nb_iter)+'/test_labels_cluster_'+str(ID[cluster])
             os.mkdir(PATH_TEST_LABELS_DIR)
-            PATH_TEST_LABELS = '%s/test_labels' % (PATH_TEST_LABELS_DIR)
+            PATH_TEST_LABELS = PATH_TEST_LABELS_DIR+'/test_labels'
 
             # PATH LABEL DICT
-            PATH_LABEL_DICT_ITER_DIR = '%s/label_dict/iteration_%s' % (COMMON_PATH, nb_iter)
+            PATH_LABEL_DICT_ITER_DIR = COMMON_PATH+'/label_dict/iteration_'+str(nb_iter)
             if not os.path.isdir(PATH_LABEL_DICT_ITER_DIR):
                 os.mkdir(PATH_LABEL_DICT_ITER_DIR)
-            PATH_LABEL_DICT_DIR = '%s/label_dict/iteration_%s/label_dict_cluster_%s' % (COMMON_PATH, iteration, ID[cluster])
+            PATH_LABEL_DICT_DIR = COMMON_PATH+'/label_dict/iteration_'+str(nb_iter)+'/label_dict_cluster_'+str(ID[cluster])
             os.mkdir(PATH_LABEL_DICT_DIR)
-            PATH_LABEL_DICT = '%s/label_dict' % (PATH_LABEL_DICT_DIR)
+            PATH_LABEL_DICT = PATH_LABEL_DICT_DIR+'/label_dict'
 
 
             architecture_a_plat(NUM_CLASSES, PATH_IMAGES, PATH_LABELS, PATH_SAVE_MODEL, PATH_PREPARED_IMAGES, PATH_TEST_IMAGES,PATH_TEST_LABELS, PATH_LABEL_DICT)
@@ -499,7 +497,7 @@ iteration = 0
 while(clusters):
 
     iteration += 1
-    clusters_for_an_iteration = '%s/clusters/iteration_%s' % (COMMON_PATH, iteration-1)
+    clusters_for_an_iteration = COMMON_PATH+'/clusters/iteration_'+str(iteration-1)
 
     print("-------------------------------------------------------------------------------")
     print("--------------------------------- iteration", iteration - 1, "---------------------------------")
@@ -510,13 +508,13 @@ while(clusters):
 
         nb_cluster = int((((cluster.split("/")[-1]).split("_")[1:3])[0]).split("n")[1])
 
-        model = load_model('%s/clusters_saves/iteration_%s/save_cluster_%s/save' % (COMMON_PATH, iteration-1,nb_cluster))
+        model = load_model(COMMON_PATH+'/clusters_saves/iteration_'+str(iteration-1)+'/save_cluster_'+str(nb_cluster)+'/save')
 
-        label_dict = np.load('%s/label_dict/iteration_%s/label_dict_cluster_%s/label_dict.npy'  % (COMMON_PATH ,iteration-1,nb_cluster))
+        label_dict = np.load(COMMON_PATH+'/label_dict/iteration_'+str(iteration-1)+'/label_dict_cluster_'+str(nb_cluster)+'/label_dict.npy')
 
-        test_images = np.load('%s/test_images/iteration_%s/test_images_cluster_%s/test_images.npy'  % (COMMON_PATH, iteration-1,nb_cluster))
+        test_images = np.load(COMMON_PATH+'/test_images/iteration_'+str(iteration-1)+'/test_images_cluster_'+str(nb_cluster)+'/test_images.npy')
 
-        test_labels = np.load('%s/test_labels/iteration_%s/test_labels_cluster_%s/test_labels.npy' % (COMMON_PATH, iteration - 1, nb_cluster))
+        test_labels = np.load(COMMON_PATH+'/test_labels/iteration_'+str(iteration-1)+'/test_labels_cluster_'+str(nb_cluster)+'/test_labels.npy')
 
 
         nb_classes = dict_information(label_dict)
