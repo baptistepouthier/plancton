@@ -50,7 +50,7 @@ class architecture_a_plat:
 
 
     def get_class(self, img_path):
-        return img_path.split('\\')[-2]
+        return img_path.split('/')[-2]
 
 
     def cnn_model(self):
