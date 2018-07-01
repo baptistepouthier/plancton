@@ -284,7 +284,7 @@ class architecture_a_plat:
 
 #COMMON_PATH = 'D:/Users/Baptiste Pouthier/Documents/partage'
 COMMON_PATH = '/home/bpouthie/Documents/partage'
-max_conf = 0.5
+max_conf = 0.7
 graph_archi = nx.Graph()
 
 
