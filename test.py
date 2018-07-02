@@ -156,7 +156,7 @@ class architecture_a_plat:
         imagesKaggles = self.PATH_PREPARED_IMAGES
         imagesKagglesLabels = self.PATH_LABELS
 
-        stop_here = EarlyStopping(patience=15)
+        stop_here = EarlyStopping(patience=2)
         # imagesUPV = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5Image95_95.npy'
         # imagesUPVLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5ImageLabels95_95.npy'
 
