@@ -22,5 +22,4 @@ pip3 install keras h5py pillow
 
 #pip3 install $TF_BINARY_URL
 
-cd /home/bpouthie/Documents/partage/confusion
 python3 test.py
