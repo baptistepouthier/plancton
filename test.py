@@ -1,11 +1,8 @@
 from keras.models import load_model
-#import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import networkx as nx
-import os
 #import pyprind
 import distutils.dir_util
-#from confusion import architecture_a_plat as cnn
 import numpy as np
 from skimage import color, exposure, transform
 from skimage import io
@@ -156,7 +153,7 @@ class architecture_a_plat:
         imagesKaggles = self.PATH_PREPARED_IMAGES
         imagesKagglesLabels = self.PATH_LABELS
 
-        stop_here = EarlyStopping(patience=2)
+        stop_here = EarlyStopping(patience=10)
         # imagesUPV = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5Image95_95.npy'
         # imagesUPVLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5ImageLabels95_95.npy'
 
@@ -205,32 +202,9 @@ class architecture_a_plat:
             # data_format=K.image_data_format()
         )
 
-        # test_datagen = ImageDataGenerator(rescale=1./255)
+
 
         train_datagen.fit(X_train) #entrainement
-        # test_datagen.fit(X_val)
-        #
-        # model = cnn_model()
-        #
-        # model.compile(loss='categorical_crossentropy',
-        #              optimizer='SGD',
-        #              metrics=['accuracy'])
-        #
-        #
-        #
-        ## Train again
-        # epochs = 30
-        # model.fit_generator(train_datagen.flow(X_train, Y_train, batch_size=batch_size),
-        #                    steps_per_epoch=X_train.shape[0]//batch_size,
-        #                    epochs=epochs,
-        #                    validation_data=(X_val,Y_val))
-        #
-        ##test_datagen.fit(X_test)
-        # Y_pred = model.predict(X_test)
-        # acc = np.sum(Y_pred == Y_test) / np.size(Y_pred)
-        # print("Test accuracy = {}".format(acc))
-
-        # test_datagen.fit(X_test)
 
 
         ##☻ METHODE SANS DATA AUGMENTATION
@@ -239,15 +213,7 @@ class architecture_a_plat:
         # let's train the model using SGD + momentum
         lr = 0.003
         sgd = SGD(lr=lr, momentum=0.9, nesterov=True)
-        # model.compile(loss='categorical_crossentropy',
-        #              optimizer=sgd,
-        #              metrics=['accuracy'])
 
-        # rms = RMSprop(lr=0.001, rho=0.9, epsilon=1e-8, decay=1e-6)
-
-        # weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5
-
-        #'D:/SaveWeights/save'
         checkpoint = ModelCheckpoint(
             self.PATH_SAVE_MODEL,
             monitor='val_acc', verbose=1, save_best_only=True, mode='max')
@@ -282,8 +248,8 @@ class architecture_a_plat:
 
 
 
-#COMMON_PATH = 'D:/Users/Baptiste Pouthier/Documents/partage'
-COMMON_PATH = '/home/bpouthie/Documents/partage'
+COMMON_PATH = 'D:/Users/Baptiste Pouthier/Documents/partage'
+#COMMON_PATH = '/home/bpouthie/Documents/partage'
 max_conf = 0.7
 graph_archi = nx.Graph()
 
@@ -522,12 +488,12 @@ while(clusters):
         nb_img = get_number_images(test_images)
 
         conf_matrix = confusion_matrix(nb_classes, nb_img, model, test_images, test_labels)
-        # plt.matshow(conf_matrix)
-        # plt.show()
+        plt.matshow(conf_matrix)
+        plt.show()
 
         G = create_graph(conf_matrix)
-        # nx.draw_networkx(G)
-        # plt.show()
+        nx.draw_networkx(G)
+        plt.show()
 
         ID, list_size, clusters,unique_ID,list_nodes_graph = from_graph_to_clusters(G, label_dict, iteration)
 
