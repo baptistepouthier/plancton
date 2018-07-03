@@ -1,5 +1,5 @@
 from keras.models import load_model
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import networkx as nx
 #import pyprind
 import distutils.dir_util
@@ -488,12 +488,12 @@ while(clusters):
         nb_img = get_number_images(test_images)
 
         conf_matrix = confusion_matrix(nb_classes, nb_img, model, test_images, test_labels)
-        plt.matshow(conf_matrix)
-        plt.show()
+        # plt.matshow(conf_matrix)
+        # plt.show()
 
         G = create_graph(conf_matrix)
-        nx.draw_networkx(G)
-        plt.show()
+        # nx.draw_networkx(G)
+        # plt.show()
 
         ID, list_size, clusters,unique_ID,list_nodes_graph = from_graph_to_clusters(G, label_dict, iteration)
 
