@@ -1,67 +1,117 @@
 from keras.models import load_model
-#import matplotlib.pyplot as plt
-import networkx as nx
-#import pyprind
-import distutils.dir_util
-import numpy as np
-from skimage import color, exposure, transform
-from skimage import io
-import os
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.convolutional import Conv2D
 from keras.preprocessing.image import ImageDataGenerator
-from sklearn.cross_validation import train_test_split
 from keras.layers.pooling import MaxPooling2D
 from keras.optimizers import SGD
-from keras.optimizers import RMSprop
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping
-from pathlib import Path
+import numpy as np
+#import matplotlib.pyplot as plt
+import networkx as nx
+import os
+
 import glob
+from skimage import io
+from skimage import transform
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+import sklearn.preprocessing
+import pandas as pd
+
+COMMON_PATH = '/home/bpouthie/Documents/partage'
+#COMMON_PATH = 'D:/Users/Baptiste Pouthier/Documents/partage'
+max_conf = 0.5
+graph_archi = nx.Graph()
+root_dir = COMMON_PATH+'/clusters/iteration_0/cluster_n0'
+IMG_SIZE = 95
+batch_size = 64
+
+
+
+def get_class(img_path):
+    return img_path.split(os.sep)[-2]
+
+
+def preprocess_img(img,IMG_SIZE):
+    # rescale to standard size
+    img = transform.resize(img, (IMG_SIZE, IMG_SIZE))
+
+    # roll color axis to axis 0
+    img = np.rollaxis(img, -1)
+    img = img.reshape(img.shape + (1,))
+
+    return img
+
+
+def sort_list(list1,list2):
+    zipped_pairs = zip(list2,list1)
+    sorted_list = [x for _, x in sorted(zipped_pairs)]
+    return sorted_list
+
+
+def prepare_images():
+    print("preparation of the images...")
+    all_img_paths = glob.glob(os.path.join(root_dir,'*'+os.sep+'*.jpg'))
+    images_list=[]
+    labels_list=[]
+    for img_path in all_img_paths:
+
+        images_list.append(preprocess_img(io.imread(img_path),IMG_SIZE)) #images resized
+        labels_list.append(get_class(img_path)) #labels
+
+
+    d = {ni: indi for indi, ni in enumerate(set(labels_list))}  # assign a number to each unique element in the list "labels", stored in d
+    numbers_label = [d[ni] for ni in labels_list]  # list comprehension and store the actual numbers in the numbers_label
+
+    index = np.random.permutation(len(images_list))
+
+    all_images = sort_list(images_list,index)
+    all_label_names = sort_list(labels_list,index)
+    all_label_numbers = sort_list(numbers_label,index)
+
+    #ajouter un save pour eviter de devoir recompiler avec
+    print('done')
+
+    #save(this is not mendatory)
+    np.save(COMMON_PATH +"/all_images",  all_images)
+    np.save(COMMON_PATH + "/all_label_names", all_label_names)
+    np.save(COMMON_PATH + "/all_label_numbers", all_label_numbers)
+
+
+    return all_images, all_label_names, all_label_numbers#,list_label_number
+
+
+
+def divide_images_and_labels(images, labels):
+
+    X_train, X_val, Y_train, Y_val = train_test_split(images, labels, test_size=0.2) #images :all_images     labels: all_label_numbers
+    X_val, X_test, Y_val, Y_test = train_test_split(X_val, Y_val, test_size=0.5)
+
+    return X_train, Y_train, X_val, Y_val, X_test, Y_test
 
 
 class architecture_a_plat:
-    def __init__(self, NUM_CLASSES, PATH_IMAGES, PATH_LABELS, PATH_SAVE_MODEL, PATH_PREPARED_IMAGES, PATH_TEST_IMAGES,PATH_TEST_LABELS,PATH_LABEL_DICT):
-
+    def __init__(self, NUM_CLASSES, X_train, Y_train, X_test, Y_test, X_val, Y_val, PATH_SAVE_MODEL):
         self.NUM_CLASSES = NUM_CLASSES
-        self.PATH_IMAGES = PATH_IMAGES
-        self.PATH_LABELS = PATH_LABELS
+        self.X_train = X_train
+        self.Y_train = Y_train
+        self.X_test = X_test
+        self.Y_test = Y_test
+        self.X_val = X_val
+        self.Y_val = Y_val
         self.PATH_SAVE_MODEL = PATH_SAVE_MODEL
-        self.PATH_PREPARED_IMAGES = PATH_PREPARED_IMAGES
-
-        self.PATH_LABEL_DICT = PATH_LABEL_DICT
-
-        self.PATH_TEST_IMAGES = PATH_TEST_IMAGES
-        self.PATH_TEST_LABELS = PATH_TEST_LABELS
-
-
-        self.IMG_SIZE=95
-        self.batch_size=32
-        self.d=dict()
+        self.batch_size = batch_size
         self.run()
-
-
-    def preprocess_img(self, img):
-        # rescale to standard size
-        img = transform.resize(img, (self.IMG_SIZE, self.IMG_SIZE))
-
-        # roll color axis to axis 0
-        img = np.rollaxis(img, -1)
-        img = img.reshape(img.shape + (1,))
-
-        return img
-
-
-    def get_class(self, img_path):
-        return img_path.split('/')[-2]
 
 
     def cnn_model(self):
         model = Sequential()
 
         model.add(Conv2D(32, (3, 3), padding='same',
-                         input_shape=(self.IMG_SIZE, self.IMG_SIZE, 1)))
+                             input_shape=(IMG_SIZE, IMG_SIZE, 1)))
         model.add(LeakyReLU(alpha=(1 / 3)))
         model.add(Conv2D(16, (3, 3)))
         model.add(LeakyReLU(alpha=(1 / 3)))
@@ -87,7 +137,6 @@ class architecture_a_plat:
         model.add(Conv2D(256, (3, 3), padding='same'))
         model.add(LeakyReLU(alpha=(1 / 3)))
         model.add(Conv2D(256, (3, 3)))
-        model.add(LeakyReLU(alpha=(1 / 3)))
         model.add(Conv2D(128, (3, 3)))
         model.add(LeakyReLU(alpha=(1 / 3)))
         model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
@@ -101,84 +150,10 @@ class architecture_a_plat:
         return model
 
 
-    def prepareData(self):
-        root_dir = self.PATH_IMAGES
-
-        imgs = []
-        labels = []
-        k = 0
-
-        all_img_paths = glob.glob(os.path.join(root_dir, '*/*.jpg'))
-        np.random.shuffle(all_img_paths)
-        for img_path in all_img_paths:
-            img = self.preprocess_img(io.imread(img_path))
-            label = self.get_class(img_path)
-            if (label not in self.d):
-                self.d[label] = k
-                k = k + 1
-            imgs.append(img)
-            labels.append(label)
-            if (len(labels) % 100 == 0):
-                print(str(len(labels)) + " imgs treated...")
-        print(str(len(labels)) + " Done")
-        # np.save(self.PATH_K, k) #save number of classes
-        # np.save(self.PATH_TEST_LABELS_NAMES, labels) #save labels names sorted
-        label_chiffre = []
-        for label in labels:
-            label_chiffre.append(self.d.get(label))
-        dictlist = []
-        for key, value in self.d.items():
-            temp = [key, value]
-            dictlist.append(temp)
-
-        np.save(self.PATH_LABEL_DICT,dictlist) #save the dictionary
-
-        X = np.array(imgs, dtype='float32')
-        # Make one hot targets
-        Y = np.eye(self.NUM_CLASSES, dtype='uint8')[label_chiffre]
-
-        return X, Y
-
-
-    #def lr_schedule(self, epoch): //pas sur de commenter ça
-    #    return lr * (0.1 ** int(epoch / 10))
-
-    #images déjà-redimentionnées
-    #imagesKaggles = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/kaggleImage95_95.npy'
-    #imagesKagglesLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/kaggleImageLabels95_95.npy'
-
-
     def run(self):
 
-        imagesKaggles = self.PATH_PREPARED_IMAGES
-        imagesKagglesLabels = self.PATH_LABELS
+        stop_here = EarlyStopping(patience=15)
 
-        stop_here = EarlyStopping(patience=10)
-        # imagesUPV = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5Image95_95.npy'
-        # imagesUPVLabels = 'C:/Users/Cédric/Documents/Polytech/MAM5/PFE/DossierSave/upv5ImageLabels95_95.npy'
-
-        pathImages = Path(imagesKaggles)
-        pathImagesLabels = Path(imagesKagglesLabels)
-
-        if (pathImages.exists()):
-            print("Load Data...")
-            X = np.load(imagesKaggles)
-            Y = np.load(imagesKagglesLabels)
-        else:
-            X, Y = self.prepareData()
-            np.save(imagesKaggles, X)
-            np.save(imagesKagglesLabels, Y)
-
-        X_train, X_val, Y_train, Y_val = train_test_split(X, Y,
-                                                          test_size=0.2)  # , random_state=42)
-
-        X_val, X_test, Y_val, Y_test = train_test_split(X_val, Y_val, test_size=0.5)
-
-        print("save test images...")
-        np.save(self.PATH_TEST_IMAGES,X_test)
-
-        print("save test labels...")
-        np.save(self.PATH_TEST_LABELS,Y_test)
 
         train_datagen = ImageDataGenerator(
             featurewise_center=False,
@@ -202,9 +177,9 @@ class architecture_a_plat:
             # data_format=K.image_data_format()
         )
 
+        # test_datagen = ImageDataGenerator(rescale=1./255)
 
-
-        train_datagen.fit(X_train) #entrainement
+        train_datagen.fit(np.array(self.X_train))
 
 
         ##☻ METHODE SANS DATA AUGMENTATION
@@ -214,6 +189,8 @@ class architecture_a_plat:
         lr = 0.003
         sgd = SGD(lr=lr, momentum=0.9, nesterov=True)
 
+
+
         checkpoint = ModelCheckpoint(
             self.PATH_SAVE_MODEL,
             monitor='val_acc', verbose=1, save_best_only=True, mode='max')
@@ -221,37 +198,23 @@ class architecture_a_plat:
         model.compile(loss='categorical_crossentropy',
                       optimizer=sgd,
                       metrics=['accuracy'])
-        model.fit_generator(train_datagen.flow(X_train, Y_train, batch_size=self.batch_size),
-                            steps_per_epoch=X_train.shape[0] // self.batch_size,
+        model.fit_generator(train_datagen.flow(self.X_train,self.Y_train, batch_size=self.batch_size),
+                            steps_per_epoch=self.X_train.shape[0] // self.batch_size,
                             epochs=100,
                             #epochs=1,
                             #epochs=50,
-                            validation_data=(X_val, Y_val),
+                            validation_data=(self.X_val, self.Y_val),
                             callbacks=callbacks_list)  # validation_split pour split auto
 
-        # test_datagen = ImageDataGenerator(rescale=1./255)
-        # test_datagen.fit(X_test)
-
-        # model.fit()
 
 
-
-        Y_pred = model.predict(X_test)
+        Y_pred = model.predict(self.X_test)
 
         predClasses = Y_pred.argmax(axis=-1)
-        trueClasses = Y_test.argmax(axis=-1)
+        trueClasses = self.Y_test.argmax(axis=-1)
 
         acc = np.sum(predClasses == trueClasses) / np.size(predClasses)
         print("Test accuracy = {}".format(acc))
-
-
-
-
-
-#COMMON_PATH = 'D:/Users/Baptiste Pouthier/Documents/partage'
-COMMON_PATH = '/home/bpouthie/Documents/partage'
-max_conf = 0.7
-graph_archi = nx.Graph()
 
 
 print("processing...")
@@ -269,243 +232,200 @@ def ID_static():
     return(ID_static.counter)
 
 
-def get_number_images(images):
-    # #list_dir = os.listdir(dataset)
-    # list_dir = np.load(sorted_labels)
-    # #number_images = sum(len(files) for _, _, files in os.walk(dataset))
-    number_images = len(images)
-    return number_images
 
+def conf_matrix(model,images,labels):
 
-def dict_information(label_dict):
-    sorted_labels = []
+    print("predictions by the model with",len(images),"images")
+    Y_prob = model.predict(images)  # belonging probability of images
+    Y_classes = Y_prob.argmax(axis=1)  # label predicts the image based on its probability
 
-    for label in label_dict:
-        sorted_labels.append(label[0])
+    true_label = []
+    for row in range(0, len(images)):
+        true_label.append(np.where(labels[row][np.newaxis, :] == 1)[1][0])  # theoretical label
 
-    return len(sorted_labels)
+    conf = confusion_matrix(true_label,Y_classes)
 
-
-
-def confusion_matrix(number_classes,number_images,model,images,LABELS):
-
-    #number_classes = len(list_directory) ###########################
-    print("number of classes :", number_classes)
-    print("number of images :", number_images)
-    conf = np.zeros((number_classes, number_classes))  # confusion matrix creation
-    print("\n","predictions by the model:")
-
-    #for row in pyprind.prog_percent(range(0,number_images)):
-    for row in range(0, number_images):
-
-        Y_prob = model.predict(images[row][np.newaxis, :]) #belonging probability of images
-
-        Y_classes = Y_prob.argmax(axis=1)  #label predicts the image based on its probability
-
-        label=np.where(LABELS[row][np.newaxis,:] == 1)[1][0] #theoretical label
-
-        conf[label][Y_classes] += 1 #confusion matrix: C[i,j] increment the image number in class j knowing that it really belongs in class i
-
-    for row in range (0,number_classes): #normalization : percentage of items i classified as class j
-        for col in range (0,number_classes):
-            if not np.sum(conf[row]) == 0: conf[row][col]=conf[row][col]/np.sum(conf[row]) #the confusion matrix is now normalized.
-            #with row: how each class has been classified, i.e. C[i,j] / sum(conf[i]) of the class i objects are classified as class j
-            #with column: what classes are  responsible for each classification, i.e. C[i,j] / sum(conf[j]) of the objects classified as class j were from class i
+    conf = sklearn.preprocessing.normalize(conf, axis=1, norm='l1')
+    #the confusion matrix is now normalized.
+    #with row: how each class has been classified, i.e. C[i,j] / sum(conf[i]) of the class i objects are classified as class j
+    #with column: what classes are  responsible for each classification, i.e. C[i,j] / sum(conf[j]) of the objects classified as class j were from class i
 
     return conf
 
 
-def create_graph(conf):
+
+def create_graph(conf,label_dict): #label_dict indicate the true label
     g = nx.Graph()  # graph creation
     above_max = np.where(conf > max_conf) #test against the threshold
 
     for row, col in zip(above_max[0],above_max[1]):
         if row != col:
-            g.add_edge(row,col) #create graph
+            if bool(label_dict): g.add_edge(label_dict[row],label_dict[col]) #create graph
+            else : g.add_edge(row,col)
     return g
 
 
 
-def from_graph_to_clusters(g,label_dict,nb_iter): #ajouter nb_iter
+def from_graph_to_clusters(g): #ajouter nb_iter
     sub_graphs = nx.connected_component_subgraphs(g) #sub_graphs contains the different connected structures
 
     clusters = [] #will contain the different clusters (numbers)
-    clusters_with_names = [] ##will contain the different clusters (names)
+
     ID = []
 
     for index, sg in enumerate(sub_graphs):
-        clusters.append(list(sg.nodes))
-
-    list_number = -1
-    for list_ in clusters:
-        clusters_with_names.append([])
-        list_number+=1
-        for value in list_:
-            name = ''
-            for index in range(len(label_dict)):
-                if (int(label_dict[index][-1])) == value:
-                    name = label_dict[index][0]
-            clusters_with_names[list_number].append(name)
+        clusters.append(list(sg.nodes)) #cluster from the subgraphs
+        ID.append(ID_static())
 
 
-    cluster_ID = -1
-    list_size_clusters = []
-    list_nodes_graph = []
+    return clusters, ID
+
+
+def cluster_training(clusters,ID,nb_iter,all_images,all_label_numbers,all_label_names):
     if clusters:
 
-        path_iteration_dir = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)
+        print("Start Training\n")
+        ID_index = -1
+        for cluster in clusters:
 
-        if not os.path.isdir(path_iteration_dir):
-            os.mkdir(path_iteration_dir)
+            ID_index += 1
 
-        print("\n","creation of directories with the images sorted by cluster inside:")
-
-        #list_nodes_graph = []
-        for cluster in clusters_with_names:
-            cluster_size=len(cluster)
-            cluster_ID += 1
-            ID.append(ID_static())
-
-            path_cluster = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)+'/cluster_n'+str(ID[cluster_ID])
-            list_size_clusters.append(cluster_size)
-            os.mkdir(path_cluster)
-
-            cluster_created = 'cluster_n'+str(ID[cluster_ID])+'_s'+str(cluster_size)
-
-            list_nodes_graph.append(cluster_created)
-
-            print("fill cluster", cluster_ID, "...")
-
-            for class_name in cluster:
-                dst = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)+'/cluster_n'+str(ID[cluster_ID])+'/'+class_name
-                os.mkdir(dst)
-
-                src = COMMON_PATH+'/clusters/iteration_0/cluster_n0/'+class_name
-
-                distutils.dir_util.copy_tree(src, dst, preserve_mode=1)
-
-        print("Success")
-    return(cluster_ID,list_size_clusters,clusters,ID,list_nodes_graph)
-
-
-def cluster_training(cluster_ID,list_size_clusters,nb_iter,clusters,ID):
-    if clusters:
-
-        print("Start Training")
-        for cluster in range(0,cluster_ID+1):
             print("cluster number", cluster)
             # NUM_CLASSES
-            NUM_CLASSES = list_size_clusters[cluster]
 
-            # PATH_IMAGES
-            PATH_IMAGES = COMMON_PATH+'/clusters/iteration_'+str(nb_iter)+'/cluster_n'+str(ID[cluster])
-            print(PATH_IMAGES)
-
-            # PATH_LABEL
-            PATH_LABEL_ITER_DIR = COMMON_PATH+'/clusters_labels/iteration_'+str(nb_iter)
-            if not os.path.isdir(PATH_LABEL_ITER_DIR):
-                os.mkdir(PATH_LABEL_ITER_DIR)
-            PATH_LABEL_DIR = COMMON_PATH+'/clusters_labels/iteration_'+str(nb_iter)+'/labels_cluster_'+str(ID[cluster])
-            os.mkdir(PATH_LABEL_DIR)
-            PATH_LABELS = PATH_LABEL_DIR+'/label'
-
-            # PATH_SAVE_MODEL
-            PATH_SAVE_ITER_DIR = COMMON_PATH+'/clusters_saves/iteration_'+str(nb_iter)
-            if not os.path.isdir(PATH_SAVE_ITER_DIR):
-                os.mkdir(PATH_SAVE_ITER_DIR)
-            PATH_SAVE_MODEL_DIR = COMMON_PATH+'/clusters_saves/iteration_'+str(nb_iter)+'/save_cluster_'+str(ID[cluster])
-            os.mkdir(PATH_SAVE_MODEL_DIR)
-            PATH_SAVE_MODEL = PATH_SAVE_MODEL_DIR+'/save'
-
-            # PREPARED_IMAGES_PATH
-            PATH_PREPARED_IMAGES_ITER_DIR = COMMON_PATH+'/clusters_prepared_images/iteration_'+str(nb_iter)
-            if not os.path.isdir(PATH_PREPARED_IMAGES_ITER_DIR):
-                os.mkdir(PATH_PREPARED_IMAGES_ITER_DIR)
-            PATH_PREPARED_IMAGES_DIR = COMMON_PATH+'/clusters_prepared_images/iteration_'+str(nb_iter)+'/prepared_images_cluster_'+str(ID[cluster])
-            os.mkdir(PATH_PREPARED_IMAGES_DIR)
-            PATH_PREPARED_IMAGES = PATH_PREPARED_IMAGES_DIR+'/prepared_images'
-
-            # PATH TEST IMAGES
-            PATH_TEST_IMAGES_ITER_DIR = COMMON_PATH+'/test_images/iteration_'+str(nb_iter)
-            if not os.path.isdir(PATH_TEST_IMAGES_ITER_DIR):
-                os.mkdir(PATH_TEST_IMAGES_ITER_DIR)
-            PATH_TEST_IMAGES_DIR = COMMON_PATH+'/test_images/iteration_'+str(nb_iter)+'/test_images_cluster_'+str(ID[cluster])
-            os.mkdir( PATH_TEST_IMAGES_DIR)
-            PATH_TEST_IMAGES = PATH_TEST_IMAGES_DIR+'/test_images'
-
-            # PATH TEST LABELS
-            PATH_TEST_LABELS_ITER_DIR = COMMON_PATH+'/test_labels/iteration_'+str(nb_iter)
-            if not os.path.isdir(PATH_TEST_LABELS_ITER_DIR):
-                os.mkdir(PATH_TEST_LABELS_ITER_DIR)
-            PATH_TEST_LABELS_DIR = COMMON_PATH+'/test_labels/iteration_'+str(nb_iter)+'/test_labels_cluster_'+str(ID[cluster])
-            os.mkdir(PATH_TEST_LABELS_DIR)
-            PATH_TEST_LABELS = PATH_TEST_LABELS_DIR+'/test_labels'
-
-            # PATH LABEL DICT
-            PATH_LABEL_DICT_ITER_DIR = COMMON_PATH+'/label_dict/iteration_'+str(nb_iter)
-            if not os.path.isdir(PATH_LABEL_DICT_ITER_DIR):
-                os.mkdir(PATH_LABEL_DICT_ITER_DIR)
-            PATH_LABEL_DICT_DIR = COMMON_PATH+'/label_dict/iteration_'+str(nb_iter)+'/label_dict_cluster_'+str(ID[cluster])
-            os.mkdir(PATH_LABEL_DICT_DIR)
-            PATH_LABEL_DICT = PATH_LABEL_DICT_DIR+'/label_dict'
+            NUM_CLASSES = len(cluster)
+            print('number of species: ',NUM_CLASSES)
 
 
-            architecture_a_plat(NUM_CLASSES, PATH_IMAGES, PATH_LABELS, PATH_SAVE_MODEL, PATH_PREPARED_IMAGES, PATH_TEST_IMAGES,PATH_TEST_LABELS, PATH_LABEL_DICT)
+            cluster_index = [idx for idx, element in enumerate(all_label_numbers) if element in cluster] #give all indexes in all_label_numbers where the label is in cluster
 
-    else: print("no training needed regarding the threshold")
+            cluster_images =[]
+            cluster_labels = []
+            cluster_names = []#
+
+            for index in cluster_index: #define the custer images and the labels
+
+                cluster_images.append(all_images[index])
+                cluster_labels.append(all_label_numbers[index])
+                cluster_names.append(all_label_names[index])#
+
+            print('cluster composed by', set(cluster_names))
+            print('image number:',len(cluster_labels),"\n")
+
+
+            #### transform labels in adapted one-hot encoding ####
+            unique = list(set(cluster_labels))
+            new_values = list(range(0, len(unique)))
+
+            label_dict = dict()
+            if len(cluster_labels) >= 2*batch_size:
+
+                rectified_labels = []
+
+                for element in cluster_labels:
+                    for value in unique:
+                        if element == value: rectified_labels.append(new_values[unique.index(value)])
+                        label_dict[new_values[unique.index(value)]] = value
+
+            ####
+
+                if not label_dict in all_clusters_with_ID[3::4]:
+
+
+                    X_train, Y_train, X_val, Y_val, X_test, Y_test = divide_images_and_labels(np.array(cluster_images,dtype='float32'), np.eye(NUM_CLASSES, dtype='uint8')[rectified_labels]) #cluster_labels
+
+
+                    all_clusters_with_ID.extend((ID[ID_index],X_test,Y_test,label_dict))#save the images and label for future call in confusion_matrix
+
+
+                    # PATH_SAVE_MODEL
+                    PATH_SAVE_ITER_DIR = COMMON_PATH+'/clusters_saves/iteration_'+str(nb_iter)
+                    if not os.path.isdir(PATH_SAVE_ITER_DIR):
+                        os.mkdir(PATH_SAVE_ITER_DIR)
+                    PATH_SAVE_MODEL_DIR = COMMON_PATH+'/clusters_saves/iteration_'+str(nb_iter)+'/save_cluster_'+str(ID[ID_index])
+                    os.mkdir(PATH_SAVE_MODEL_DIR)
+                    PATH_SAVE_MODEL = PATH_SAVE_MODEL_DIR+'/save'
+
+                    df = pd.DataFrame(list(set(cluster_names))) #save the species name regarding each cluster to help the final prediction afterward
+                    df.to_csv(PATH_SAVE_MODEL_DIR+'/labels.csv', index=False) #to load afterward : my_data = np.genfromtxt(PATH_SAVE_MODEL_DIR+'labels.csv', dtype=None,encoding=None)[1:]
+
+
+                    architecture_a_plat(NUM_CLASSES, X_train, Y_train, X_test, Y_test, X_val, Y_val, PATH_SAVE_MODEL)
+                    print("\n-cluster trained-\n")
+
+                else : print(" /!\ cluster already present at the previous iteration, no training  /!\ ")
+
+            else : print(" /!\ too few images, no training /!\ \n\n ")
+
+    else: print("no more cluster - no training needed")
+
+    return(all_clusters_with_ID)
 
 
 
 
+all_images, all_label_names, all_label_numbers= prepare_images()
+
+#decommenter les deux lignes ci-dessous pour lancer le test à 0 (partir de 121 classes) /!\ necessaire pour bon resultats car le "save" actuel n'est pas adapté au melange fait.
+
+X_train, Y_train, X_val, Y_val, X_test, Y_test = divide_images_and_labels(np.array(all_images,dtype='float32'), np.eye(121, dtype='uint8')[all_label_numbers])
+architecture_a_plat(121, X_train, Y_train, X_test, Y_test, X_val, Y_val, COMMON_PATH+'/clusters_saves/iteration_0/save_cluster_0/save')
+
+#commenter les deux lignes ci dessous pour lancer le test à 0
+# X_test = np.load(COMMON_PATH+'/test_images/iteration_0/test_images_cluster_0/test_images.npy')
+# Y_test = np.load(COMMON_PATH+'/test_labels/iteration_0/test_labels_cluster_0/test_labels.npy')
+
+empty_dict=dict()
+all_clusters_with_ID=[0,X_test,Y_test,empty_dict]
 clusters = True
 iteration = 0
 
 while(clusters):
 
     iteration += 1
-    clusters_for_an_iteration = COMMON_PATH+'/clusters/iteration_'+str(iteration-1)
+    clusters_for_an_iteration = COMMON_PATH+'/clusters_saves/iteration_'+str(iteration-1)
 
-    print("-------------------------------------------------------------------------------")
-    print("--------------------------------- iteration", iteration - 1, "---------------------------------")
-    print("-------------------------------------------------------------------------------")
+    if os.path.isdir(clusters_for_an_iteration):
 
-    for cluster in list(os.listdir(clusters_for_an_iteration)):
-        print("cluster :",cluster)
+        print("-------------------------------------------------------------------------------")
+        print("--------------------------------- iteration", iteration - 1, "---------------------------------")
+        print("-------------------------------------------------------------------------------")
 
-        nb_cluster = int((((cluster.split("/")[-1]).split("_")[1:3])[0]).split("n")[1])
+        for cluster in list(os.listdir(clusters_for_an_iteration)):
+            print("\ncluster :",cluster)
 
-        model = load_model(COMMON_PATH+'/clusters_saves/iteration_'+str(iteration-1)+'/save_cluster_'+str(nb_cluster)+'/save')
-
-        label_dict = np.load(COMMON_PATH+'/label_dict/iteration_'+str(iteration-1)+'/label_dict_cluster_'+str(nb_cluster)+'/label_dict.npy')
-
-        test_images = np.load(COMMON_PATH+'/test_images/iteration_'+str(iteration-1)+'/test_images_cluster_'+str(nb_cluster)+'/test_images.npy')
-
-        test_labels = np.load(COMMON_PATH+'/test_labels/iteration_'+str(iteration-1)+'/test_labels_cluster_'+str(nb_cluster)+'/test_labels.npy')
+            nb_cluster = int(cluster.split('_')[-1])
 
 
-        nb_classes = dict_information(label_dict)
+            X_test, Y_test = all_clusters_with_ID[all_clusters_with_ID[::4].index(nb_cluster)*4+1],all_clusters_with_ID[all_clusters_with_ID[::4].index(nb_cluster)*4+2]
 
-        nb_img = get_number_images(test_images)
-
-        conf_matrix = confusion_matrix(nb_classes, nb_img, model, test_images, test_labels)
-        # plt.matshow(conf_matrix)
-        # plt.show()
-
-        G = create_graph(conf_matrix)
-        # nx.draw_networkx(G)
-        # plt.show()
-
-        ID, list_size, clusters,unique_ID,list_nodes_graph = from_graph_to_clusters(G, label_dict, iteration)
-
-        graph_archi.add_node(cluster,pos=(nb_cluster,iteration-1))
-
-        for node in list_nodes_graph:
-            graph_archi.add_node(node,pos=((node.split('_')[-2]).split('n')[-1],iteration))
-            graph_archi.add_edge(node,cluster)
+            dict_references=all_clusters_with_ID[all_clusters_with_ID[::4].index(nb_cluster)*4+3]
 
 
-        cluster_training(ID, list_size, iteration, clusters, unique_ID)
+            model = load_model(COMMON_PATH+'/clusters_saves/iteration_'+str(iteration-1)+'/'+cluster+'/save')
 
+
+            confus_matrix = conf_matrix(model, X_test, Y_test)
+            # plt.matshow(confus_matrix)
+            # plt.show()
+
+            G = create_graph(confus_matrix,dict_references)
+            # nx.draw_networkx(G)
+            # plt.show()
+
+            clusters, ID = from_graph_to_clusters(G)
+
+            #graph_archi.add_node(cluster,pos=(nb_cluster,iteration-1))
+
+            # for node in list_nodes_graph:
+            #     #graph_archi.add_node(node,pos=((node.split('_')[-2]).split('n')[-1],iteration))
+            #     #graph_archi.add_edge(node,cluster)
+
+            all_clusters_with_ID = cluster_training(clusters,ID,iteration,all_images,all_label_numbers,all_label_names)
+
+    else :
+        print("\nThere are only redundant groups")
+        clusters = False
 
 print("training finished!")
 # pos = nx.get_node_attributes(graph_archi,'pos')
