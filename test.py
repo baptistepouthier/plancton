@@ -8,7 +8,7 @@ from keras.layers.pooling import MaxPooling2D
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import networkx as nx
 import os
 
@@ -72,16 +72,8 @@ def prepare_images():
     all_label_names = sort_list(labels_list,index)
     all_label_numbers = sort_list(numbers_label,index)
 
-    #ajouter un save pour eviter de devoir recompiler avec
-    print('done')
 
-    #save(this is not mendatory)
-    np.save(COMMON_PATH +"/all_images",  all_images)
-    np.save(COMMON_PATH + "/all_label_names", all_label_names)
-    np.save(COMMON_PATH + "/all_label_numbers", all_label_numbers)
-
-
-    return all_images, all_label_names, all_label_numbers#,list_label_number
+    return all_images, all_label_names, all_label_numbers
 
 
 
@@ -364,16 +356,32 @@ def cluster_training(clusters,ID,nb_iter,all_images,all_label_numbers,all_label_
 
 
 
+
+# all_images = np.load(COMMON_PATH+'/all_images.npy')
+# all_label_names = np.load(COMMON_PATH+'/all_label_names.npy')
+# all_label_numbers = np.load(COMMON_PATH+'/all_label_numbers.npy')
+
+
+#decommenter les trois lignes ci-dessous pour lancer le test à 0 (partir de 121 classes) /!\ necessaire pour bon resultats car le "save" actuel n'est pas adapté au melange fait.
 all_images, all_label_names, all_label_numbers= prepare_images()
 
-#decommenter les deux lignes ci-dessous pour lancer le test à 0 (partir de 121 classes) /!\ necessaire pour bon resultats car le "save" actuel n'est pas adapté au melange fait.
+# save(this is not mandatory)
+np.save(COMMON_PATH + "/all_images", all_images)
+np.save(COMMON_PATH + "/all_label_names", all_label_names)
+np.save(COMMON_PATH + "/all_label_numbers", all_label_numbers)
 
 X_train, Y_train, X_val, Y_val, X_test, Y_test = divide_images_and_labels(np.array(all_images,dtype='float32'), np.eye(121, dtype='uint8')[all_label_numbers])
+
+# save(this is not mandatory)
+np.save(COMMON_PATH +"/X_test", X_test)
+np.save(COMMON_PATH +"/Y_test", Y_test)
+
 architecture_a_plat(121, X_train, Y_train, X_test, Y_test, X_val, Y_val, COMMON_PATH+'/clusters_saves/iteration_0/save_cluster_0/save')
 
+
 #commenter les deux lignes ci dessous pour lancer le test à 0
-# X_test = np.load(COMMON_PATH+'/test_images/iteration_0/test_images_cluster_0/test_images.npy')
-# Y_test = np.load(COMMON_PATH+'/test_labels/iteration_0/test_labels_cluster_0/test_labels.npy')
+# X_test = np.load(COMMON_PATH+'/X_test.npy')
+# Y_test = np.load(COMMON_PATH+'/Y_test.npy')
 
 empty_dict=dict()
 all_clusters_with_ID=[0,X_test,Y_test,empty_dict]
