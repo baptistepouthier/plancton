@@ -37,7 +37,7 @@ def binary_labeled_img_from_cal101(positive_folder, cal101_root='101_ObjectCateg
     neg_sample_size = len(pos_imgs)
     selected_negs = np.random.choice(list(neg_imgs), size=neg_sample_size, replace=False)
 
-    print ('%i positive, %i negative images selected (out of %i negatives total)' % (len(pos_imgs), len(selected_negs), len(neg_imgs)))
+    print (str(len(pos_imgs))+' positive,'+ str(len(selected_negs)) +'negative images selected (out of '+ str(len(neg_imgs)) +' negatives total)')
 
     labeled_img_paths = [[path, True] for path in pos_imgs] + [[path, False] for path in selected_negs]
 
@@ -68,7 +68,7 @@ def train_test_val_split_idxs(total_rows, percent_test, percent_val):
     # remove validation indexes
     training_idxs = [idx for idx in row_range if idx not in val_idxs]
 
-    print ('Train-test-val split: %i training rows, %i test rows, %i validation rows' % (len(training_idxs), len(test_idxs), len(val_idxs)))
+    print ('Train-test-val split: '+str(len(training_idxs))+' training rows, '+str(len(test_idxs))+' test rows, '+str(len(val_idxs))+' validation rows')
 
     return training_idxs, test_idxs, val_idxs
 
@@ -88,7 +88,7 @@ def gen_sift_features(labeled_img_paths):
     # img_keypoints = {}
     img_descs = []
 
-    print ('generating SIFT descriptors for %i images' % len(labeled_img_paths))
+    print ('generating SIFT descriptors for '+str(len(labeled_img_paths))+' images')
 
     for img_path, _ in labeled_img_paths:
         img = read_image(img_path)
@@ -167,11 +167,11 @@ def cluster_features(img_descs, training_idxs, cluster_model):
     if all_train_descriptors.shape[1] != 128:
         raise ValueError('Expected SIFT descriptors to have 128 features, got', all_train_descriptors.shape[1])
 
-    print ('%i descriptors before clustering' % all_train_descriptors.shape[0])
+    print (str(all_train_descriptors.shape[0])+' descriptors before clustering')
 
     # Cluster descriptors to get codebook
-    print ('Using clustering model %s...' % repr(cluster_model))
-    print ('Clustering on training set to get codebook of %i words' % n_clusters)
+    print ('Using clustering model ' + str(repr(cluster_model))+ '...')
+    print ('Clustering on training set to get codebook of '+str(n_clusters)+ ' words')
 
     # train kmeans or other cluster model on those descriptors selected above
     cluster_model.fit(all_train_descriptors)
