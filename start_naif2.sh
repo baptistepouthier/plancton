@@ -29,5 +29,5 @@ pip3 install keras h5py pillow
 
 
 
-cd /home/bpouthie/Documents/partage
+cd /home/bpouthie/Documents/partage_test
 python3 test.py
