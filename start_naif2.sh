@@ -22,5 +22,5 @@ pip3 install keras h5py pillow
 
 #pip3 install $TF_BINARY_URL
 
-cd /home/bpouthie/Documents/partage_test
+cd /home/bpouthie/Documents/partage_2
 python3 test.py
