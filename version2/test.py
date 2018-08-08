@@ -18,14 +18,14 @@ import matplotlib.pyplot as plt
 if run_from_zero:
     all_images, all_label_names, all_label_numbers = prepare_images()
 
-    # save(this is not mandatory)
+    # save
     np.save(COMMON_PATH + "/all_images", all_images)
     np.save(COMMON_PATH + "/all_label_names", all_label_names)
     np.save(COMMON_PATH + "/all_label_numbers", all_label_numbers)
 
     X_train, Y_train, X_val, Y_val, X_test, Y_test = divide_images_and_labels(np.array(all_images, dtype='float32'),np.eye(121, dtype='uint8')[all_label_numbers])
 
-    # save(this is not mandatory)
+    # save
     np.save(COMMON_PATH + "/X_test", X_test)
     np.save(COMMON_PATH + "/Y_test", Y_test)
 
@@ -120,10 +120,20 @@ if show_network:
     plt.show()
 
 
-acc = multiple_predictions(np.load(COMMON_PATH+'/X_test.npy'), np.load(COMMON_PATH+'/Y_test.npy'),all_label_names,all_label_numbers,COMMON_PATH,all_clusters_with_ID)
-print(acc)
+X_test = np.load(COMMON_PATH+'/X_test.npy')
+Y_test = np.load(COMMON_PATH+'/Y_test.npy')
+model = load_model(COMMON_PATH+'/clusters_saves/iteration_0/save_cluster_0/save')
+
+acc_hierachical = multiple_predictions(X_test, Y_test,all_label_names,all_label_numbers,COMMON_PATH,all_clusters_with_ID)
+print("accuracy with hierarchy:",acc_hierachical)
 
 
+Y_pred = model.predict(X_test)
+predClasses = Y_pred.argmax(axis=-1)
+trueClasses = Y_test.argmax(axis=-1)
+
+acc = np.sum(predClasses == trueClasses) / np.size(predClasses)
+print("accuracy with 'flat' cnn:",acc)
 
 
 

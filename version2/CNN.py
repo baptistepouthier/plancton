@@ -142,8 +142,8 @@ class cnn:
         model.fit_generator(train_datagen.flow(self.X_train,self.Y_train, batch_size=self.batch_size),
                             steps_per_epoch=self.X_train.shape[0] // self.batch_size,
                             #epochs=100,
-                            epochs=1,
-                            #epochs=50,
+                            # epochs=1,
+                            epochs=50,
                             validation_data=(self.X_val, self.Y_val),
                             callbacks=callbacks_list)  # validation_split pour split auto
 
@@ -156,3 +156,6 @@ class cnn:
 
         acc = np.sum(predClasses == trueClasses) / np.size(predClasses)
         print("Test accuracy = {}".format(acc))
+
+
+
