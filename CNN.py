@@ -122,15 +122,15 @@ class cnn:
 
             model = load_model(self.previous_model)
 
-            print("summary 1")
-            print(model.summary())
+            # print("summary 1")
+            # print(model.summary())
 
             model.pop()
-            model.add(Dense(self.NUM_CLASSES, activation='softmax'))
-            model.layers[-1].name = 'dense_2'
+            model.add(Dense(self.NUM_CLASSES, name = 'dense_2', activation='softmax'))
+            #model.layers[-1].name = 'dense_2'
 
-            print("summary 2")
-            print(model.summary())
+            # print("summary 2")
+            # print(model.summary())
 
         # let's train the model using SGD + momentum
         lr = 0.003
@@ -148,7 +148,7 @@ class cnn:
         model.fit_generator(train_datagen.flow(self.X_train,self.Y_train, batch_size=self.batch_size),
                             steps_per_epoch=self.X_train.shape[0] // self.batch_size,
                             epochs=100,
-                            #epochs=2,
+                            # epochs=1,
                             # epochs=50,
                             validation_data=(self.X_val, self.Y_val),
                             callbacks=callbacks_list)  # validation_split pour split auto
