@@ -4,4 +4,4 @@
 
 2. the version2 folder contain a CNN hierachical classifier using confusion matrix to sort plankton images.
 
-ReportPlanktons present the CNN without the hierachy aspect (theory and results). PresentationPlanktons.pptx is the associated slides.
+ReportPlanktons present the CNN without the hierachy aspect (theory and results). PresentationPlanktons are the associated slides.
