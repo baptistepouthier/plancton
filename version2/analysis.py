@@ -28,6 +28,7 @@ def conf_matrix(model,images,labels):
         plt.ylabel('True')
 
         plt.show()
+
     #the confusion matrix is now normalized.
     #with row: how each class has been classified, i.e. C[i,j] / sum(conf[i]) of the class i objects are classified as class j
     #with column: what classes are  responsible for each classification, i.e. C[i,j] / sum(conf[j]) of the objects classified as class j were from class i

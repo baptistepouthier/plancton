@@ -14,11 +14,6 @@ from CNN import cnn
 from data import divide_images_and_labels
 
 
-
-
-graph_archi = nx.Graph()
-
-
 def static_var(varname, value):
     def decorate(func):
         setattr(func, varname, value)
@@ -63,6 +58,8 @@ def from_graph_to_clusters(g): #ajouter nb_iter
 
 def cluster_training(clusters,ID,nb_iter,all_images,all_label_numbers,all_label_names,all_clusters_with_ID,model_path):
 
+
+
     list_nodes_graph = []
 
     if clusters:
@@ -71,7 +68,10 @@ def cluster_training(clusters,ID,nb_iter,all_images,all_label_numbers,all_label_
         ID_index = -1
         for cluster in clusters:
 
+            # print("ID: ",ID)
+
             ID_index += 1
+
 
             print("cluster number", cluster)
             # NUM_CLASSES
@@ -105,8 +105,6 @@ def cluster_training(clusters,ID,nb_iter,all_images,all_label_numbers,all_label_
 
             if len(cluster_labels) >= 4 * batch_size:
 
-                list_nodes_graph.append('save_cluster_' + str(ID[ID_index]))
-
                 #### transform labels in adapted one-hot encoding ####
                 unique = list(set(cluster_labels))
                 new_values = list(range(0, len(unique)))
@@ -121,6 +119,7 @@ def cluster_training(clusters,ID,nb_iter,all_images,all_label_numbers,all_label_
 
                 if not label_dict in all_clusters_with_ID[3::4]:
 
+                    list_nodes_graph.append('save_cluster_' + str(ID[ID_index]))
 
                     X_train, Y_train, X_val, Y_val, X_test, Y_test = divide_images_and_labels(np.array(cluster_images,dtype='float32'), np.eye(NUM_CLASSES, dtype='uint8')[rectified_labels]) #cluster_labels
 

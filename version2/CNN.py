@@ -121,10 +121,16 @@ class cnn:
             print("using weight from previous model")
 
             model = load_model(self.previous_model)
-            model.pop()
-            model.add(Dense(self.NUM_CLASSES, activation='softmax'))
-            model.layers[-1].name = 'dense_2'
 
+            # print("summary 1")
+            # print(model.summary())
+
+            model.pop()
+            model.add(Dense(self.NUM_CLASSES, name = 'dense_2', activation='softmax'))
+            #model.layers[-1].name = 'dense_2'
+
+            # print("summary 2")
+            # print(model.summary())
 
         # let's train the model using SGD + momentum
         lr = 0.003
@@ -141,9 +147,9 @@ class cnn:
                       metrics=['accuracy'])
         model.fit_generator(train_datagen.flow(self.X_train,self.Y_train, batch_size=self.batch_size),
                             steps_per_epoch=self.X_train.shape[0] // self.batch_size,
-                            #epochs=100,
-                            # epochs=1,
-                            epochs=50,
+                            # epochs=100,
+                            epochs=1,
+                            # epochs=50,
                             validation_data=(self.X_val, self.Y_val),
                             callbacks=callbacks_list)  # validation_split pour split auto
 

@@ -48,7 +48,7 @@ graph_archi = nx.Graph()
 
 iteration = 0
 nb_cluster = 0
-label_dict_graph={}
+# label_dict_graph={}
 while(clusters):
 
     iteration += 1
@@ -86,20 +86,22 @@ while(clusters):
 
                 all_clusters_with_ID, list_nodes_graph = cluster_training(clusters,ID,iteration,all_images,all_label_numbers,all_label_names,all_clusters_with_ID,model_path)
 
-                graph_archi.add_node(cluster, pos=(nb_cluster, iteration - 1))
-                label_dict_graph[cluster] = nb_cluster
+                graph_archi.add_node(cluster)
+                # label_dict_graph[cluster] = nb_cluster
                 for node in list_nodes_graph:
-                    graph_archi.add_node(node, pos=((node.split('_')[-1]), iteration))
-                    label_dict_graph[node] = int(node.split('_')[-1])
+                    graph_archi.add_node(node)
+                    # label_dict_graph[node] = int(node.split('_')[-1])
                     graph_archi.add_edge(cluster, node)
+
 
             else :
 
                 print("cluster trained with SVM")
 
-                graph_archi.add_node(cluster, pos=(nb_cluster, iteration - 1))
-                label_dict_graph[cluster] = nb_cluster
+                graph_archi.add_node(cluster)
+                # label_dict_graph[cluster] = nb_cluster
                 graph_archi.add_edge(cluster,'save_cluster_'+str(all_clusters_with_ID[all_clusters_with_ID[::4].index(nb_cluster) * 4 + 1]))
+
 
     else :
         print("\nThere are only redundant groups")
@@ -110,13 +112,16 @@ while(clusters):
 print("training finished!\n")
 
 if show_network:
-    pos = nx.get_node_attributes(graph_archi,'pos')
-    plt.yticks(np.arange(0, iteration, dtype=np.int))
-    plt.xticks(np.arange(0, nb_cluster+1, dtype=np.int))
-    plt.xlabel('cluster number')
-    plt.ylabel('iteration')
+
     plt.title('Architecture graph of the classifier')
-    nx.draw_networkx(graph_archi,pos,labels=label_dict_graph)
+    plt.axis('off')
+    labeldict = {}
+    for iter in os.listdir(COMMON_PATH+'/clusters_saves')[1::]:
+        clusters = os.listdir(COMMON_PATH+'/clusters_saves/' + iter)
+        for cluster in clusters:
+            labeldict[str(cluster)]='\n'.join(np.genfromtxt(COMMON_PATH+'/clusters_saves/'+ iter +'/'+ cluster +'/'+ 'labels.csv', dtype=None, encoding=None)[1:])
+
+    nx.draw_networkx(graph_archi,labels=labeldict)
     plt.show()
 
 
